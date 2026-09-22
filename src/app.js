@@ -1,14 +1,15 @@
 const express = require('express')
 const mongoose = require('mongoose')
 
-const app = express()
-
-app.use(express.json())
-
 // RECIPE SCHEMA
 
 const recipeSchema = new mongoose.Schema(
     {
+        recipe_id: {
+            type: Number,
+            required: true
+        },
+
         title: {
             type: String,
             required: true
@@ -47,11 +48,15 @@ const Recipe = mongoose.model('Recipe', recipeSchema)
 
 // MEAL PLAN SCHEMA
 
-const mealSchema = new mongoose.Schema(
+const mealPlanSchema = new mongoose.Schema(
     {
-        recipe: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Recipe',
+        mealPlan_id: {
+            type: Number,
+            required: true
+        },
+
+        weekStartDate: {
+            type: Date,
             required: true
         },
 
@@ -59,21 +64,6 @@ const mealSchema = new mongoose.Schema(
             type: String,
             enum: ['breakfast', 'lunch', 'dinner', 'snack'],
             required: true
-        }
-    },
-    { _id: false }
-)
-
-const mealPlanSchema = new mongoose.Schema(
-    {
-        weekStartDate: {
-            type: Date,
-            required: true
-        },
-
-        meals: {
-            type: [mealSchema],
-            default: []
         },
 
         status: {
@@ -92,212 +82,148 @@ const mealPlanSchema = new mongoose.Schema(
 
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema)
 
+const app = express()
+
+app.use(express.json())
+
+let nextId = 1
+
 app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'ok'
-    })
+    res.status(200).json({status: 'ok'})
 })
 
-// CREATE RECIPE
-// POST /recipes
-
-app.post('/recipes', async (req, res) => {
-    try {
-        const recipe = await Recipe.create(req.body)
-
-        res.status(201).json(recipe)
-    } catch (error) {
-        res.status(400).json({
-            error: error.message
-        })
-    }
-})
-
-// READ ALL RECIPES
-// GET /recipes
-
+// GET all recipes
 app.get('/recipes', async (req, res) => {
     try {
         const recipes = await Recipe.find({})
-
+     
         res.status(200).json(recipes)
+
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: "Recipe not Found"})
     }
 })
 
-// READ ONE RECIPE
-// GET /recipes/:id
-
+// READ --- 200 or 404
 app.get('/recipes/:id', async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id)
-
-        if (!recipe) {
-            return res.status(404).json({
-                error: 'Recipe not found'
-            })
-        }
-
+      
+        const recipe = await Recipe.find({recipe_id: Number(req.params.id)})
+   
+        if(!recipe) return res.status(404).json({error: 'Recipe not found'})
+      
         res.status(200).json(recipe)
+    
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: "Recipe not Found"})
     }
 })
 
-// UPDATE RECIPE
-// PATCH /recipes/:id
 
+// CREATE --- 201
+app.post('/recipes', async (req, res) => {
+    try {
+        const recipe = await Recipe.create({recipe_id:String(nextId++), ...req.body})
+        res.status(201).json(recipe)
+    } catch (error) {
+        res.status(500).json({error: error.message})
+    }
+})
+
+// UPDATE --- 200 or 404
 app.patch('/recipes/:id', async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id)
+        const recipe = await Recipe.findOneAndUpdate({recipe_id: Number(req.params.id)})
 
-        if (!recipe) {
-            return res.status(404).json({
-                error: 'Recipe not found'
-            })
-        }
+        if(!recipe) return res.status(404).json({error: "Recipe not Found"})
 
         Object.assign(recipe, req.body)
 
         await recipe.save()
-
+       
         res.status(200).json(recipe)
+
     } catch (error) {
-        res.status(400).json({
-            error: error.message
-        })
+        res.status(500).json({error: error.message})
     }
 })
 
-// DELETE RECIPE
-// DELETE /recipes/:id
-
+// DELETE -- 204
 app.delete('/recipes/:id', async (req, res) => {
     try {
-        const recipe = await Recipe.findByIdAndDelete(req.params.id)
-
-        if (!recipe) {
-            return res.status(404).json({
-                error: 'Recipe not found'
-            })
-        }
-
+        const recipe = await Recipe.findOneAndDelete({recipe_id:req.params.id}).exec()
+        if(!recipe) return res.status(404).json({error: "Recipe not Found"})
+        
         res.status(204).send()
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: error.message})
     }
+    
 })
 
-// CREATE MEAL PLAN
-// POST /meal-plans
-
-app.post('/meal-plans', async (req, res) => {
-    try {
-        const mealPlan = await MealPlan.create(req.body)
-
-        res.status(201).json(mealPlan)
-    } catch (error) {
-        res.status(400).json({
-            error: error.message
-        })
-    }
-})
-
-// READ ALL MEAL PLANS
-// GET /meal-plans
-
+// GET all
 app.get('/meal-plans', async (req, res) => {
     try {
         const mealPlans = await MealPlan.find({})
-            .populate('meals.recipe')
-
+     
         res.status(200).json(mealPlans)
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: "Meal plans not Found"})
     }
 })
 
-// READ ONE MEAL PLAN
-// GET /meal-plans/:id
-
+// GET
 app.get('/meal-plans/:id', async (req, res) => {
     try {
-        const mealPlan = await MealPlan.findById(req.params.id)
-            .populate('meals.recipe')
-
-        if (!mealPlan) {
-            return res.status(404).json({
-                error: 'Meal plan not found'
-            })
-        }
-
+        const mealPlan = await MealPlan.find({mealPlan_id: Number(req.params.id)})
+   
+        if(!mealPlan) return res.status(404).json({error: 'Meal plan not found'})
+      
         res.status(200).json(mealPlan)
+    
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: "Meal plan not Found"})
     }
 })
 
-// UPDATE MEAL PLAN
-// PATCH /meal-plans/:id
+// CREATE
+app.post('/meal-plans', async (req, res) => {
+     try {
+        const mealPlan = await MealPlan.create({mealPlan_id:String(nextId++), ...req.body})
+        res.status(201).json(mealPlan)
+    } catch (error) {
+        res.status(500).json({error: error.message})
+    }
+})
 
+// UPDATE
 app.patch('/meal-plans/:id', async (req, res) => {
     try {
-        const mealPlan = await MealPlan.findById(req.params.id)
+        const mealPlan = await MealPlan.findOneAndUpdate({mealPlan_id: Number(req.params.id)})
 
-        if (!mealPlan) {
-            return res.status(404).json({
-                error: 'Meal plan not found'
-            })
-        }
+        if(!mealPlan) return res.status(404).json({error: "Meal plan not Found"})
 
         Object.assign(mealPlan, req.body)
 
         await mealPlan.save()
-
+       
         res.status(200).json(mealPlan)
+
     } catch (error) {
-        res.status(400).json({
-            error: error.message
-        })
+        res.status(500).json({error: error.message})
     }
 })
 
-// DELETE MEAL PLAN
-// DELETE /meal-plans/:id
-
+// DELETE 
 app.delete('/meal-plans/:id', async (req, res) => {
-    try {
-        const mealPlan = await MealPlan.findByIdAndDelete(req.params.id)
-
-        if (!mealPlan) {
-            return res.status(404).json({
-                error: 'Meal plan not found'
-            })
-        }
-
+     try {
+        const mealPlan = await MealPlan.findOneAndDelete({mealPlan_id:req.params.id}).exec()
+        if(!mealPlan) return res.status(404).json({error: "Meal plan not Found"})
+        
         res.status(204).send()
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        })
+        res.status(500).json({error: error.message})
     }
-})
-
-app.use((req, res) => {
-    res.status(404).json({
-        error: 'Route not found'
-    })
 })
 
 module.exports = app
