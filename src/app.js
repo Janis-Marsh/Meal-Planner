@@ -88,12 +88,12 @@ app.use(express.json())
 
 let nextId = 1
 
-app.get('/health', (req, res) => {
+app.get('meal-planner/v1//health', (req, res) => {
     res.status(200).json({status: 'ok'})
 })
 
 // GET all recipes
-app.get('/recipes', async (req, res) => {
+app.get('meal-planner/v1//recipes', async (req, res) => {
     try {
         const recipes = await Recipe.find({})
      
@@ -105,7 +105,7 @@ app.get('/recipes', async (req, res) => {
 })
 
 // READ --- 200 or 404
-app.get('/recipes/:id', async (req, res) => {
+app.get('meal-planner/v1/recipes/:id', async (req, res) => {
     try {
       
         const recipe = await Recipe.find({recipe_id: Number(req.params.id)})
@@ -121,7 +121,7 @@ app.get('/recipes/:id', async (req, res) => {
 
 
 // CREATE --- 201
-app.post('/recipes', async (req, res) => {
+app.post('meal-planner/v1//recipes', async (req, res) => {
     try {
         const recipe = await Recipe.create({recipe_id:String(nextId++), ...req.body})
         res.status(201).json(recipe)
@@ -131,7 +131,7 @@ app.post('/recipes', async (req, res) => {
 })
 
 // UPDATE --- 200 or 404
-app.patch('/recipes/:id', async (req, res) => {
+app.patch('meal-planner/v1//recipes/:id', async (req, res) => {
     try {
         const recipe = await Recipe.findOneAndUpdate({recipe_id: Number(req.params.id)})
 
@@ -149,7 +149,7 @@ app.patch('/recipes/:id', async (req, res) => {
 })
 
 // DELETE -- 204
-app.delete('/recipes/:id', async (req, res) => {
+app.delete('meal-planner/v1//recipes/:id', async (req, res) => {
     try {
         const recipe = await Recipe.findOneAndDelete({recipe_id:req.params.id}).exec()
         if(!recipe) return res.status(404).json({error: "Recipe not Found"})
@@ -162,7 +162,7 @@ app.delete('/recipes/:id', async (req, res) => {
 })
 
 // GET all
-app.get('/meal-plans', async (req, res) => {
+app.get('meal-planner/v1//meal-plans', async (req, res) => {
     try {
         const mealPlans = await MealPlan.find({})
      
@@ -173,7 +173,7 @@ app.get('/meal-plans', async (req, res) => {
 })
 
 // GET
-app.get('/meal-plans/:id', async (req, res) => {
+app.get('meal-planner/v1//meal-plans/:id', async (req, res) => {
     try {
         const mealPlan = await MealPlan.find({mealPlan_id: Number(req.params.id)})
    
@@ -187,7 +187,7 @@ app.get('/meal-plans/:id', async (req, res) => {
 })
 
 // CREATE
-app.post('/meal-plans', async (req, res) => {
+app.post('meal-planner/v1//meal-plans', async (req, res) => {
      try {
         const mealPlan = await MealPlan.create({mealPlan_id:String(nextId++), ...req.body})
         res.status(201).json(mealPlan)
@@ -197,7 +197,7 @@ app.post('/meal-plans', async (req, res) => {
 })
 
 // UPDATE
-app.patch('/meal-plans/:id', async (req, res) => {
+app.patch('meal-planner/v1//meal-plans/:id', async (req, res) => {
     try {
         const mealPlan = await MealPlan.findOneAndUpdate({mealPlan_id: Number(req.params.id)})
 
@@ -215,7 +215,7 @@ app.patch('/meal-plans/:id', async (req, res) => {
 })
 
 // DELETE 
-app.delete('/meal-plans/:id', async (req, res) => {
+app.delete('meal-planner/v1//meal-plans/:id', async (req, res) => {
      try {
         const mealPlan = await MealPlan.findOneAndDelete({mealPlan_id:req.params.id}).exec()
         if(!mealPlan) return res.status(404).json({error: "Meal plan not Found"})
