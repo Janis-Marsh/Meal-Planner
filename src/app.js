@@ -1,86 +1,4 @@
 const express = require('express')
-const mongoose = require('mongoose')
-
-// RECIPE SCHEMA
-
-const recipeSchema = new mongoose.Schema(
-    {
-        recipe_id: {
-            type: Number,
-            required: true
-        },
-
-        title: {
-            type: String,
-            required: true
-        },
-
-        description: {
-            type: String,
-            default: ''
-        },
-
-        servings: {
-            type: Number,
-            required: true,
-            min: 1
-        },
-
-        ingredients: {
-            type: [String],
-            required: true
-        },
-
-        instructions: {
-            type: String,
-            required: true
-        },
-
-        createdBy: {
-            type: String,
-            required: true
-        }
-    },
-    { timestamps: true }
-)
-
-const Recipe = mongoose.model('Recipe', recipeSchema)
-
-// MEAL PLAN SCHEMA
-
-const mealPlanSchema = new mongoose.Schema(
-    {
-        mealPlan_id: {
-            type: Number,
-            required: true
-        },
-
-        weekStartDate: {
-            type: Date,
-            required: true
-        },
-
-        mealType: {
-            type: String,
-            enum: ['breakfast', 'lunch', 'dinner', 'snack'],
-            required: true
-        },
-
-        status: {
-            type: String,
-            enum: ['draft', 'finalized'],
-            default: 'draft'
-        },
-
-        createdBy: {
-            type: String,
-            required: true
-        }
-    },
-    { timestamps: true }
-)
-
-const MealPlan = mongoose.model('MealPlan', mealPlanSchema)
 
 const app = express()
 
@@ -108,7 +26,7 @@ app.get('meal-planner/v1//recipes', async (req, res) => {
 app.get('meal-planner/v1/recipes/:id', async (req, res) => {
     try {
       
-        const recipe = await Recipe.find({recipe_id: Number(req.params.id)})
+        const recipe = await Recipe.find({id})
    
         if(!recipe) return res.status(404).json({error: 'Recipe not found'})
       
