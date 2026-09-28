@@ -14,11 +14,38 @@ const mealPlanSchema = new mongoose.Schema(
 
         meals: [
             {
-                day: { type: String, required: true },
-                mealType: { type: String, required: true },
-                recipeName: { type: String, required: true },
+                recipeId: {
+                    type: Number,
+                    ref: 'Recipe'
+                },
+
+                day: {
+                    type: String,
+                    required: true,
+                    enum: [
+                        'Monday',
+                        'Tuesday',
+                        'Wednesday',
+                        'Thursday',
+                        'Friday',
+                        'Saturday',
+                        'Sunday'
+                    ]
+                },
+
+                mealType: {
+                    type: String,
+                    required: true,
+                    enum: [
+                        'breakfast',
+                        'lunch',
+                        'dinner',
+                        'snack'
+                    ]
+                }
             }
         ],
+
 
         status: {
             type: String,
@@ -28,7 +55,7 @@ const mealPlanSchema = new mongoose.Schema(
 
         createdBy: {
             type: String,
-            required: true
+            default: null
         }
     },
     { timestamps: true }

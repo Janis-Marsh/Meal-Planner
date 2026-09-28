@@ -1,9 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const recipeController = require('../controllers/recipe.controller');
+const express = require('express')
+const recipeController = require('../controllers/recipe.controller')
+const asyncHandler = require('../utils/asyncHandler')
 
-router.get('/recipes', recipeController.getRecipes);
-router.get('/recipes/:id', recipeController.getRecipe);
-router.post('/recipes', recipeController.createRecipe);
+const router = express.Router()
 
-module.exports = router;
+router.get('/', asyncHandler(recipeController.findAll))
+
+router.get('/:id',asyncHandler( recipeController.findById))
+
+router.post('/', asyncHandler(recipeController.create))
+
+router.put('/:id', asyncHandler(recipeController.update))
+
+router.patch('/:id', asyncHandler(recipeController.update))
+
+router.delete('/:id', asyncHandler(recipeController.remove))
+
+module.exports = router

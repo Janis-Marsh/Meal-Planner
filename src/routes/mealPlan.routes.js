@@ -1,9 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const mealPlanController = require('../controllers/mealPlan.controller');
+const express = require('express')
+const mealPlanController = require('../controllers/mealPlan.controller')
+const asyncHandler = require('../utils/asyncHandler')
 
-router.get('/meal-plans', mealPlanController.getMealPlans);
-router.get('/meal-plans/:id', mealPlanController, getMealPlan);
-router.post('/meal-plans', mealPlanController.createMealPlan);
+const router = express.Router()
 
-module.exports = router;
+router.get('/', asyncHandler(mealPlanController.findAll))
+
+router.get('/:id', asyncHandler(mealPlanController.findById))
+
+router.post('/', asyncHandler(mealPlanController.create))
+
+router.put('/:id', asyncHandler(mealPlanController.update))
+
+router.patch('/:id', asyncHandler(mealPlanController.update))
+
+router.delete('/:id', asyncHandler(mealPlanController.remove))
+
+module.exports = router

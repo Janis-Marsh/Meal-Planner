@@ -1,81 +1,54 @@
-const mealPlanService = require("../services/mealPlan.service")
+const recipeService = require('../services/recipe.service')
 
-const createMealPlan = async (req, res) => {
-    const mealPlan = await mealPlanService.create(req.body)
-    
+const create = async (req, res) => {
+    const recipe = await recipeService.create(req.body)
+
     res.status(201).json({
         success: true,
-        data: mealPlan
+        data: recipe
     })
 }
 
-const getMealPlans = async (req, res) => {
-    const mealPlans = await mealPlanService.findAll()
+const findAll = async (_req, res) => {
+    const recipes = await recipeService.findAll()
 
     res.status(200).json({
         success: true,
-        data: mealPlans
+        data: recipes
     })
 }
 
-const getMealPlan = async (req, res) => {
-    const mealPlan = await mealPlanService.findById(req.params.id)
-
-    if (!mealPlan) {
-        return res.status(404).json({
-            success: false,
-            error: {
-                message: 'Meal Plan not found'
-            }
-        })
-    }
+const findById = async (req, res) => {
+    const recipe = await recipeService.findById(req.params.id)
 
     res.status(200).json({
         success: true,
-        data: mealPlans
+        data: recipe
     })
 }
 
-const updateMealPlan = async (req, res) => {
-    const mealPlan = await mealPlanService.update(
+const update = async (req, res) => {
+    const recipe = await recipeService.update(
         req.params.id,
         req.body
     )
 
-    if (!mealPlan) {
-        return res.status(404).json({
-            success: false,
-            error: {
-                message: 'Meal Plan not found'
-            }
-        })
-    }
-
     res.status(200).json({
         success: true,
-        data: mealPlan
+        data: recipe
     })
 }
 
-const deleteMealPlan = async (req, res) => {
-    const mealPlan = await mealPlanService.remove(req.params.id)
-
-    if (!mealPlan) {
-        return res.status(404).json({
-            success: false,
-            error: {
-                message: 'Meal Plan not found'
-            }
-        })
-    }
+const remove = async (req, res) => {
+    await recipeService.remove(req.params.id)
 
     res.status(204).send()
 }
 
 module.exports = {
-    createRecipe,
-    getRecipes,
-    getRecipe,
-    updateRecipe,
-    deleteRecipe
+    create,
+    findAll,
+    findById,
+    update,
+    remove
 }

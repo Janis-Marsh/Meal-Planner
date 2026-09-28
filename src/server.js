@@ -4,7 +4,7 @@ const app = require('./app.js')
 
 async function start() {
     await connectDatabase()
-    const server = app.listen(port, () => console.log(`Listening on http://localhost:${port}`))
+    const server = app.listen(port, () => console.log(`Listening on Port ${port}`))
 }
 start()
 

@@ -1,45 +1,57 @@
-const Recipe = require("../models/recipe.model")
+const Recipe = require('../models/recipe.model')
+const ApiError = require('../utils/ApiError')
 
-const create = async (recipeData) => {
-    return await Recipe.create(recipeData)
+const create = async (data) => {
+    const lastRecipe = await Recipe.findOne().sort({ _id: -1 })
+
+    const nextId = lastRecipe ? lastRecipe._id + 1 : 1
+
+    return await Recipe.create({
+        ...data,
+        _id: nextId,
+        createdBy: null
+    })
 }
 
 const findAll = async () => {
-    return await Recipe.find({})
+    return await Recipe.find()
 }
 
 const findById = async (id) => {
     const recipe = await Recipe.findById(id)
 
     if (!recipe) {
-        throw new Error('Recipe not found');
+        throw new ApiError(404, 'Recipe not found')
     }
 
     return recipe
 }
 
-const update = async (id, updateData) => {
-    const recipe = await Recipe.findById(id)
+const update = async (id, data) => {
+    const recipe = await Recipe.findByIdAndUpdate(
+        id,
+        data,
+        {
+            new: true,
+            runValidators: true
+        }
+    )
 
     if (!recipe) {
-        throw new Error('Recipe not found');
+        throw new ApiError(404, 'Recipe not found')
     }
-
-    Object.assign(recipe, updateData)
-
-    await recipe.save()
 
     return recipe
 }
 
 const remove = async (id) => {
-    const deletedRecipe = await Recipe.findByIdAndDelete(id)
+    const recipe = await Recipe.findByIdAndDelete(id)
 
-    if (!deletedRecipe) {
-        throw new Error('Recipe not found');
+    if (!recipe) {
+        throw new ApiError(404, 'Recipe not found')
     }
 
-    return deletedRecipe;
+    return recipe
 }
 
 module.exports = {

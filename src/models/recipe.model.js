@@ -4,7 +4,6 @@ const recipeSchema = new mongoose.Schema(
     {
         _id: {
             type: Number,
-            required: true
         },
 
         title: {
@@ -35,7 +34,7 @@ const recipeSchema = new mongoose.Schema(
 
         createdBy: {
             type: String,
-            required: true
+            default: null
         }
     },
     { timestamps: true }
