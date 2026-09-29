@@ -4,7 +4,6 @@ const mealPlanSchema = new mongoose.Schema(
     {
         _id: {
             type: Number,
-            required: true
         },
 
         weekStartDate: {
@@ -53,8 +52,14 @@ const mealPlanSchema = new mongoose.Schema(
             default: 'draft'
         },
 
+        deletedAt: {
+            type: Date,
+            default: null
+        },
+
         createdBy: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
             default: null
         }
     },
