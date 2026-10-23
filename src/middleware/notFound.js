@@ -1,10 +1,7 @@
-const notFound = (req, res) => {
-    res.status(404).json({
-        success: false,
-        error: {
-            message: 'Route not found'
-        }
-    })
-}
+'use Strict'
 
-module.exports = notFound
+const ApiError = require('../utils/ApiError')
+
+module.exports = function notFound(req, res, next) {
+    next(new ApiError(404, `Route not found: ${req.method} ${req.originalUrl}`))
+}

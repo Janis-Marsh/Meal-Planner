@@ -2,10 +2,6 @@ const mongoose = require('mongoose')
 
 const recipeSchema = new mongoose.Schema(
     {
-        _id: {
-            type: Number,
-        },
-
         title: {
             type: String,
             required: true
@@ -37,10 +33,10 @@ const recipeSchema = new mongoose.Schema(
             default: null
         },
 
-        createdBy: {
+        ownerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            default: null
+            index: true
         }
     },
     { timestamps: true }

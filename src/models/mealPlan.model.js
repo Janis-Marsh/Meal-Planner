@@ -1,11 +1,8 @@
 const mongoose = require('mongoose')
+const {MEALDAY, MEALTYPE, MEALPLAN_STATUSES, MEALPLAN_STATUS} = require('../config/constants')
 
 const mealPlanSchema = new mongoose.Schema(
     {
-        _id: {
-            type: Number,
-        },
-
         weekStartDate: {
             type: Date,
             required: true
@@ -14,33 +11,21 @@ const mealPlanSchema = new mongoose.Schema(
         meals: [
             {
                 recipeId: {
-                    type: Number,
-                    ref: 'Recipe'
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Recipe',
+                    index: true
                 },
 
                 day: {
                     type: String,
                     required: true,
-                    enum: [
-                        'Monday',
-                        'Tuesday',
-                        'Wednesday',
-                        'Thursday',
-                        'Friday',
-                        'Saturday',
-                        'Sunday'
-                    ]
+                    enum: {values: MEALDAY, message: '{VALUE} is not a supported location'}
                 },
 
                 mealType: {
                     type: String,
                     required: true,
-                    enum: [
-                        'breakfast',
-                        'lunch',
-                        'dinner',
-                        'snack'
-                    ]
+                    enum: {values: MEALTYPE, message: '{VALUE} is not a supported location'}
                 }
             }
         ],
@@ -48,8 +33,8 @@ const mealPlanSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ['draft', 'finalized'],
-            default: 'draft'
+            enum: {values: MEALPLAN_STATUSES, message: '{VALUE} is not a supported location'},
+            default: MEALPLAN_STATUS.DRAFT
         },
 
         deletedAt: {
@@ -57,14 +42,18 @@ const mealPlanSchema = new mongoose.Schema(
             default: null
         },
 
-        createdBy: {
+        ownerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            default: null
+            index: true
         }
     },
     { timestamps: true }
 )
+
+plantSchema.index({status: 1, day: 1, mealType: 1})
+// creates an index on both the status and location fields: the 1 means ascending order
+plantSchema.index({createdAt: -1})
 
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema)
 

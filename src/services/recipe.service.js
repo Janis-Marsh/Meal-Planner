@@ -2,15 +2,8 @@ const Recipe = require('../models/recipe.model')
 const ApiError = require('../utils/ApiError')
 
 const create = async (data) => {
-    
-    const lastRecipe = await Recipe.findOne().sort({ _id: -1 })
-
-    const nextId = lastRecipe ? lastRecipe._id + 1 : 1
-
     const recipe = await Recipe.create({
         ...data,
-        _id: nextId,
-        createdBy: data.createdBy ?? null
     })
 
     return recipe
@@ -23,13 +16,8 @@ const findAll = async () => {
 }
 
 const findById = async (id) => {
-    const numericId = Number(id)
 
-    if (!Number.isInteger(numericId) || numericId <= 0) {
-        throw new ApiError(400, 'Recipe ID must be a positive number')
-    }
-
-    const recipe = await Recipe.findById(numericId)
+    const recipe = await Recipe.findById(req.params.id)
 
     if (!recipe) {
         throw new ApiError(404, 'Recipe not found')
