@@ -51,9 +51,9 @@ const mealPlanSchema = new mongoose.Schema(
     { timestamps: true }
 )
 
-plantSchema.index({status: 1, day: 1, mealType: 1})
+mealPlanSchema.index({status: 1, day: 1, mealType: 1})
 // creates an index on both the status and location fields: the 1 means ascending order
-plantSchema.index({createdAt: -1})
+mealPlanSchema.index({createdAt: -1})
 
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema)
 

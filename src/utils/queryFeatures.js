@@ -125,12 +125,18 @@ function buildMealFilter(query={}){
         filter.mealType = query.mealType
         // sets te filter query status to a status on the whitelist
     }
+    return filter
+}
+
+function buildRecipeFilter(query={}){
+    const filter = {}
     if(query.q){
         // 'i' makes the search case insensitive so that widens the search result for the use
         // $or checks both fields and keeps a plant that matches wither one as ors do
         const pattern = new RegExp(escapeRegex(String(query.q).trim()), 'i')
-        filter.$or = [{nickname: pattern}, {species:pattern}]
+        filter.$or = [{title: pattern}]
     }
     return filter
 }
-module.exports = {parsePagination, parseSort, buildMeta, buildMealFilter, escapeRegex}
+
+module.exports = {parsePagination, parseSort, buildMeta, buildMealFilter, buildRecipeFilter, escapeRegex}

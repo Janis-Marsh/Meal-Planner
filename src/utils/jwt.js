@@ -19,7 +19,7 @@ const jwt = require('jsonwebtoken')
 const {jwtSecret, jwtExpiresIn} = require('../config/env')
 const ApiError = require('./ApiError')
 
-function signToken(user) {
+function signToken(user){
     const payload = {sub: String(user._id), role: user.role}
     return jwt.sign(payload, jwtSecret, {expiresIn: jwtExpiresIn})
 }

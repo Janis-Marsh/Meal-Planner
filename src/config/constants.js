@@ -12,7 +12,7 @@ const MEALTYPE = Object.freeze([
 const MEALPLAN_STATUS = Object.freeze({
     DRAFT: 'draft', FINALIZED: 'finalized'
 })
-const MEALPLAN_STATUSES = Object.freeze(Object.values(PLANT_STATUS))
+const MEALPLAN_STATUSES = Object.freeze(Object.values(MEALPLAN_STATUS))
 
 //** Client Tags for Sorting*/
 const SORTABLE_FIELDS = Object.freeze([
