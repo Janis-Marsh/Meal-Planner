@@ -4,7 +4,8 @@ const recipeSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: true
+            required: [true, 'title required'],
+            maxlength: [60, 'title cannot exceed 60 characters']
         },
 
         description: {
@@ -41,6 +42,10 @@ const recipeSchema = new mongoose.Schema(
     },
     { timestamps: true }
 )
+
+recipeSchema.index({title: 1})
+// creates an index on both the status and location fields: the 1 means ascending order
+recipeSchema.index({createdAt: -1})
 
 const Recipe = mongoose.model('Recipe', recipeSchema)
 

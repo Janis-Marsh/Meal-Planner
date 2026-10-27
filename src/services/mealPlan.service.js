@@ -30,15 +30,9 @@ const create = async (data) => {
         throw new ApiError(409,'A meal plan already exists for this week')
     }
 
-    const lastMealPlan = await MealPlan.findOne().sort({ _id: -1 })
-
-    const nextId = lastMealPlan ? lastMealPlan._id + 1 : 1
-
     const mealPlan = await MealPlan.create({
         ...data,
-        _id: nextId,
         status: 'draft',
-        createdBy: data.createdBy ?? null
     })
 
     return mealPlan
@@ -51,13 +45,8 @@ const findAll = async () => {
 }
 
 const findById = async (id) => {
-    const numericId = Number(id)
 
-    if (!Number.isInteger(numericId) || numericId <= 0) {
-        throw new ApiError(400, 'Meal plan ID must be a positive number')
-    }
-
-    const mealPlan = await MealPlan.findById(numericId)
+    const mealPlan = await MealPlan.findById(req.params.id)
 
     if (!mealPlan) {
         throw new ApiError(404, 'Meal plan not found')
@@ -80,9 +69,6 @@ const update = async (id, data) => {
     if (data.meals) {
         validateMeals(data.meals)
     }
-
-    delete data.createdBy
-    delete data.status
 
     Object.assign(mealPlan, data)
 

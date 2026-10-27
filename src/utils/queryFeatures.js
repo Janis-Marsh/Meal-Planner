@@ -38,7 +38,7 @@ function parsePagination(query={}){
  * @throws {ApiError} 400 when a field is not sortable
  */
 function parseSort(sortParam){
-    if(sortParam || typeof sortParam !== 'string') return {...DEFAULT_SORT}
+    if(!sortParam || typeof sortParam !== 'string') return {...DEFAULT_SORT}
 
     const sort = {}
 
@@ -107,7 +107,7 @@ function buildMealFilter(query={}){
         filter.status = query.status
         // sets te filter query status to a status on the whitelist
     }
-    if(query.MEALDAY){
+    if(query.day){
         if(!MEALDAY.includes(query.day)){
             // checks to see is the given status is in the approved statuses list
             throw ApiError.badRequest(`'${query.day}' is not a supported location. Valid: ${MEALDAY.join(', ')}`)
@@ -116,7 +116,7 @@ function buildMealFilter(query={}){
         filter.day = query.day
         // sets te filter query status to a status on the whitelist
     }
-    if(query.MEALTYPE){
+    if(query.mealType){
         if(!MEALTYPE.includes(query.mealType)){
             // checks to see is the given status is in the approved statuses list
             throw ApiError.badRequest(`'${query.mealType}' is not a supported location. Valid: ${MEALTYPE.join(', ')}`)

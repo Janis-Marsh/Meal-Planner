@@ -16,7 +16,7 @@ const MEALPLAN_STATUSES = Object.freeze(Object.values(MEALPLAN_STATUS))
 
 //** Client Tags for Sorting*/
 const SORTABLE_FIELDS = Object.freeze([
-    'createdAt', 'updatedAt'
+    'createdAt', 'updatedAt', 'status', 'day', 'mealType', 'title'
 ])
 
 const PAGINATION = Object.freeze({

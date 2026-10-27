@@ -25,7 +25,7 @@ class ApiError extends Error {
 
     // 403: we did not know who you are -- and still may not do this
     // for stage 3 this will be a per record permission not just access to all
-    static unauthorized(message = "Unauthorized", details = null) {
+    static unauthenticated(message = "Unauthenticated", details = null) {
         return new ApiError(403, message, details)
     }
 
