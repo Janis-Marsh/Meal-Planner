@@ -7,14 +7,14 @@ const router = express.Router()
 
 router
     .route('/')
-        .get(asyncHandler(recipeController.findAll))
-        .post(requireAuth, asyncHandler(recipeController.create))
+        .get(recipeController.findAll)
+        .post(requireAuth, recipeController.create)
 
 router
     .route('/:id')
-        .get(asyncHandler(recipeController.findById))
-        .put(asyncHandler(recipeController.update))
-        .patch(asyncHandler(recipeController.update))
-        .delete(asyncHandler(recipeController.remove))
+        .get(recipeController.findById)
+        .put(requireAuth, recipeController.update)
+        .patch(requireAuth, recipeController.update)
+        .delete(requireAuth, recipeController.remove)
 
 module.exports = router

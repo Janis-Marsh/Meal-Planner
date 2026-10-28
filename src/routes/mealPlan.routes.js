@@ -12,8 +12,8 @@ router
 router
     .route('/:id')
         .get(mealPlanController.findById)
-        .put(mealPlanController.update)
-        .patch(mealPlanController.update)
-        .delete(mealPlanController.remove)
+        .put(requireAuth, mealPlanController.update)
+        .patch(requireAuth, mealPlanController.update)
+        .delete(requireAuth, mealPlanController.remove)
 
 module.exports = router

@@ -36,7 +36,7 @@ const login = asyncHandler(async(req,res)=>{
 })
 
 //GET /api/v1/auth/me
-const me = asyncHandler(async(res,req)=>{
+const me = asyncHandler(async(req, res)=>{
     sendSuccess(res, req.user)
 })
 
