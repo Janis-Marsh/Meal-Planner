@@ -1,8 +1,17 @@
+'use strict'
+
 const mongoose = require('mongoose')
 const {MEALDAY, MEALTYPE, MEALPLAN_STATUSES, MEALPLAN_STATUS} = require('../config/constants')
 
 const mealPlanSchema = new mongoose.Schema(
     {
+        title: {
+            type: String,
+            required: [true, 'title required'],
+            trim: true,
+            maxlength: [60, 'title cannot exceed 60 characters']
+        },
+        
         weekStartDate: {
             type: Date,
             required: true
@@ -12,28 +21,26 @@ const mealPlanSchema = new mongoose.Schema(
             {
                 recipeId: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Recipe',
-                    index: true
+                    ref: 'Recipe'
                 },
 
                 day: {
                     type: String,
                     required: true,
-                    enum: {values: MEALDAY, message: '{VALUE} is not a supported location'}
+                    enum: {values: MEALDAY, message: '{VALUE} is not a supported day'}
                 },
 
                 mealType: {
                     type: String,
                     required: true,
-                    enum: {values: MEALTYPE, message: '{VALUE} is not a supported location'}
+                    enum: {values: MEALTYPE, message: '{VALUE} is not a supported meal type'}
                 }
             }
         ],
 
-
         status: {
             type: String,
-            enum: {values: MEALPLAN_STATUSES, message: '{VALUE} is not a supported location'},
+            enum: {values: MEALPLAN_STATUSES, message: '{VALUE} is not a supported status'},
             default: MEALPLAN_STATUS.DRAFT
         },
 
@@ -51,8 +58,8 @@ const mealPlanSchema = new mongoose.Schema(
     { timestamps: true }
 )
 
-mealPlanSchema.index({status: 1, day: 1, mealType: 1})
-// creates an index on both the status and location fields: the 1 means ascending order
+mealPlanSchema.index({status: 1, 'meals.day': 1, 'meals.mealType': 1})
+mealPlanSchema.index({weekStartDate: -1})
 mealPlanSchema.index({createdAt: -1})
 
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema)

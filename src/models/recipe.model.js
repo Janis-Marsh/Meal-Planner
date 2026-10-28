@@ -1,11 +1,21 @@
+'use strict'
+
 const mongoose = require('mongoose')
+const {RECIPE_CATEGORY} = require('../config/constants')
 
 const recipeSchema = new mongoose.Schema(
     {
         title: {
             type: String,
             required: [true, 'title required'],
+            trim: true,
             maxlength: [60, 'title cannot exceed 60 characters']
+        },
+
+        category: {
+            type: String,
+            required: true,
+            enum: {values: RECIPE_CATEGORY, message: '{VALUE} is not a supported category'}
         },
 
         description: {
@@ -15,18 +25,21 @@ const recipeSchema = new mongoose.Schema(
 
         servings: {
             type: Number,
-            required: true,
-            min: 1
+            required: [true, 'servings required'],
+            min: [1, 'servings must be at least 1']
         },
 
         ingredients: {
             type: [String],
-            required: true
+            validate: {
+                validator: (arr) => Array.isArray(arr) && arr.length > 0,
+                message: 'at least one ingredient is required'
+            }
         },
 
         instructions: {
             type: String,
-            required: true
+            required: [true, 'instructions required']
         },
 
         deletedAt: {
@@ -44,7 +57,7 @@ const recipeSchema = new mongoose.Schema(
 )
 
 recipeSchema.index({title: 1})
-// creates an index on both the status and location fields: the 1 means ascending order
+recipeSchema.index({ category: 1 })
 recipeSchema.index({createdAt: -1})
 
 const Recipe = mongoose.model('Recipe', recipeSchema)

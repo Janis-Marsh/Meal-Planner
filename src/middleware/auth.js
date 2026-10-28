@@ -21,7 +21,7 @@ const User = require('../models/user.model')
 const requireAuth = asyncHandler(async(req, res, next)=>{
     const header = req.get('authorization')
 
-    if(!header.startsWith(AUTH.BEARER_PREFIX)){
+    if(!header || !header.startsWith(AUTH.BEARER_PREFIX)``){
         throw ApiError.unauthorized('missing or malformed Authorization header')
     }
 

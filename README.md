@@ -38,11 +38,13 @@ The application requires the following environment variables:
 |---|---|
 | `PORT` | Port the API runs on |
 | `MONGO_URI` | MongoDB connection string |
+| `NODE_ENV` | Application environment |
 
 Example:
 
     PORT=3000
     MONGO_URI=your_mongodb_connection_string
+    NODE_ENV=development
 
 ## 5. Running the Application
 

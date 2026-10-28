@@ -1,6 +1,7 @@
 require('dotenv').config()
+const { AUTH } = require('./constants')
 
-const REQUIRED = ['NODE_ENV', 'PORT', 'MONGODB_URI']
+const REQUIRED = ['NODE_ENV', 'PORT', 'MONGODB_URI', 'JWT_SECRET']
 const missing = REQUIRED.filter((key) => !process.env[key])
 //Built above is a set of rules to check and report amd required ENV variables
 

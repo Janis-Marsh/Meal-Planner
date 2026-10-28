@@ -1,63 +1,67 @@
+'use strict'
+
 const Recipe = require('../models/recipe.model')
 const ApiError = require('../utils/ApiError')
+const {parsePagination, parseSort, buildMeta, buildRecipeFilter} = require('../utils/queryFeatures')
+const {RECIPE_SORTABLE_FIELDS, RECIPE_DEFAULT_SORT} = require('../config/constants')
 
-const create = async (data) => {
-    const recipe = await Recipe.create({
-        ...data,
-    })
+// Stage 2: ownerId and deletedAt are not writable (mass assignment protection)
+const WRITABLE_FIELDS = ['title', 'category', 'description', 'servings', 'ingredients', 'instructions']
 
+const pickWritableFields = (body = {}) => {
+    const payload = {}
+    for (const field of WRITABLE_FIELDS) {
+        if (body[field] !== undefined) payload[field] = body[field]
+    }
+    return payload
+}
+
+const assertValidId = (value, name = 'id') => {
+    if (!mongoose.isObjectIdOrHexString(value)) {
+        throw ApiError.badRequest(`${name} must be a valid id`)
+    }
+}
+
+const findActive = async (id) => {
+    assertValidId(id)
+    const recipe = await Recipe.findOne({ _id: id, deletedAt: null })
+    if (!recipe) throw ApiError.notFound('Recipe not found')
     return recipe
 }
 
-const findAll = async () => {
-    return await Recipe.find({
-        deletedAt: null
-    })
+const create = async (body, ownerId) => {
+    return Recipe.create({ ...pickWritableFields(body), ownerId })
 }
 
-const findById = async (id) => {
+const findAll = async (query = {}) => {
 
-    const recipe = await Recipe.findById(req.params.id)
+    const filter = { ...buildRecipeFilter(query), deletedAt: null }
+    const sort = parseSort(query.sort, RECIPE_SORTABLE_FIELDS, RECIPE_DEFAULT_SORT)
+    const { page, limit, skip } = parsePagination(query)
 
-    if (!recipe) {
-        throw new ApiError(404, 'Recipe not found')
-    }
+    const [data, total] = await Promise.all([
+        Recipe.find(filter).sort(sort).skip(skip).limit(limit),
+        Recipe.countDocuments(filter)
+    ])
 
-    return recipe
+    return { data, meta: buildMeta({ page, limit, total }) }
 }
 
-const update = async (id, data) => {
-    const recipe = await Recipe.findById(id)
+const findById = (id) => findActive(id)
 
-    if (!recipe) {
-        throw new ApiError(404, 'Recipe not found')
-    }
+const update = async (id, body) => {
+    const recipe = await findActive(id)
 
-    delete data.createdBy
+    Object.assign(recipe, pickWritableFields(body))
 
-    Object.assign(recipe, data)
-
-    return await recipe.save()
+    return recipe.save()
 }
 
 const remove = async (id) => {
-    const recipe = await Recipe.findById(id)
-
-    if (!recipe || recipe.deletedAt) {
-        throw new ApiError(404, 'Recipe not found')
-    }
-
+    const recipe = await findActive(id)
     recipe.deletedAt = new Date()
-
     await recipe.save()
-
     return recipe
 }
 
-module.exports = {
-    create,
-    findAll,
-    findById,
-    update,
-    remove
-}
+module.exports = { create, findAll, findById, update, remove }
