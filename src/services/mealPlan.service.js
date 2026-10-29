@@ -4,7 +4,7 @@ const MealPlan = require('../models/mealPlan.model')
 const ApiError = require('../utils/ApiError')
 const {parsePagination, parseSort, buildMeta, buildMealFilter} = require('../utils/queryFeatures')
 const { MEALPLAN_STATUS, MEALPLAN_SORTABLE_FIELDS, MEALPLAN_DEFAULT_SORT } = require('../config/constants')
-const VALID_ID = /^[0-9a-fA-F]{24}$/
+const { assertValidId } = require('../utils/validateObjectId')
 
 // Stage 2: ownerId and deletedAt are not writable (mass assignment protection)
 const WRITABLE_FIELDS = ['title', 'weekStartDate', 'meals', 'status']
@@ -41,6 +41,8 @@ const validateMeals = (meals) => {
             throw ApiError.badRequest('each meal must be an object with a day and mealType')
         }
 
+        if (meal.recipeId !== undefined) assertValidId(meal.recipeId, 'recipeId')
+
         const key = `${meal.day}-${meal.mealType}`
 
         if (seen.has(key)) {
@@ -57,12 +59,6 @@ const ensureWeekIsFree = async (weekStartDate, excludeId) => {
 
     if (await MealPlan.exists(query)) {
         throw ApiError.conflict('A meal plan already exists for this week')
-    }
-}
-
-const assertValidId = (value, name = 'id') => {
-    if (!mongoose.isObjectIdOrHexString(value)) {
-        throw ApiError.badRequest(`${name} must be a valid id`)
     }
 }
 

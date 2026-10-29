@@ -4,6 +4,7 @@ const Recipe = require('../models/recipe.model')
 const ApiError = require('../utils/ApiError')
 const {parsePagination, parseSort, buildMeta, buildRecipeFilter} = require('../utils/queryFeatures')
 const {RECIPE_SORTABLE_FIELDS, RECIPE_DEFAULT_SORT} = require('../config/constants')
+const { assertValidId } = require('../utils/validateObjectId')
 
 // Stage 2: ownerId and deletedAt are not writable (mass assignment protection)
 const WRITABLE_FIELDS = ['title', 'category', 'description', 'servings', 'ingredients', 'instructions']
@@ -14,12 +15,6 @@ const pickWritableFields = (body = {}) => {
         if (body[field] !== undefined) payload[field] = body[field]
     }
     return payload
-}
-
-const assertValidId = (value, name = 'id') => {
-    if (!mongoose.isObjectIdOrHexString(value)) {
-        throw ApiError.badRequest(`${name} must be a valid id`)
-    }
 }
 
 const findActive = async (id) => {

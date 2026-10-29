@@ -1,0 +1,2094 @@
+{
+  "info": {
+    "_postman_id": "7791bc0e-2611-4240-b149-2db182272518",
+    "name": "Meal Planner API - Stage 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57106537",
+    "_collection_link": "https://go.postman.co/collection/57106537-7791bc0e-2611-4240-b149-2db182272518?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "01 Register a new user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set('email', 'user' + Date.now() + '@example.com');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Returns a user and a token\", () => { const d = pm.response.json().data; pm.expect(d.token).to.be.a(\"string\"); pm.expect(d.user || d).to.be.an(\"object\"); });",
+                  "pm.test(\"Password hash not in response\", () => pm.expect(pm.response.text()).to.not.include(\"$2\"));",
+                  "const d = pm.response.json().data;",
+                  "const u = d.user || d;",
+                  "pm.environment.set('token', d.token);",
+                  "pm.environment.set('userId', u.id || u._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"{{email}}\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 Register again with same email (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"{{email}}\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 Register with password under 8 chars (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Short Pw\",\n  \"email\": \"short{{$timestamp}}@example.com\",\n  \"password\": \"short\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 Login with correct details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Has token\", () => pm.expect(pm.response.json().data.token).to.be.a(\"string\"));",
+                  "const d = pm.response.json().data;",
+                  "const u = d.user || d;",
+                  "pm.environment.set('token', d.token);",
+                  "pm.environment.set('userId', u.id || u._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 Login with wrong password (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "pm.environment.set('loginFailMsg', pm.response.json().message || (pm.response.json().error || {}).message || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"wrongpassword\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 Login with unknown email (401, same message)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Same message as wrong password\", () => pm.expect(j.message || (j.error || {}).message || \"\").to.eql(pm.environment.get(\"loginFailMsg\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nobody{{$timestamp}}@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 Get logged-in user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Is my user\", () => { const u = pm.response.json().data; pm.expect(String(u.id || u._id)).to.eql(pm.environment.get(\"userId\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08 Get logged-in user with no token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Recipes",
+      "item": [
+        {
+          "name": "09 Create recipe with token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"ownerId is my id\", () => pm.expect(String(d.ownerId)).to.eql(pm.environment.get(\"userId\")));",
+                  "pm.environment.set('recipeId', d.id || d._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Pasta Primavera\",\n  \"category\": \"dinner\",\n  \"description\": \"Test recipe\",\n  \"servings\": 4,\n  \"ingredients\": [\n    \"salt\",\n    \"water\"\n  ],\n  \"instructions\": \"Mix and cook.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10 Create recipe with no token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"No Token Recipe\",\n  \"category\": \"dinner\",\n  \"description\": \"Test recipe\",\n  \"servings\": 4,\n  \"ingredients\": [\n    \"salt\",\n    \"water\"\n  ],\n  \"instructions\": \"Mix and cook.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "11 Create recipe with fake ownerId (ignored)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Fake ownerId ignored\", () => { pm.expect(String(d.ownerId)).to.eql(pm.environment.get(\"userId\")); pm.expect(String(d.ownerId)).to.not.eql(pm.environment.get(\"fakeOwnerId\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chicken Parm\",\n  \"category\": \"dinner\",\n  \"description\": \"Test recipe\",\n  \"servings\": 2,\n  \"ingredients\": [\n    \"salt\",\n    \"water\"\n  ],\n  \"instructions\": \"Mix and cook.\",\n  \"ownerId\": \"{{fakeOwnerId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12 Create recipe with required field missing (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"dinner\",\n  \"servings\": 2,\n  \"ingredients\": [\n    \"salt\"\n  ],\n  \"instructions\": \"No title\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12b Setup: create dessert recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chocolate Cake\",\n  \"category\": \"dessert\",\n  \"description\": \"Test recipe\",\n  \"servings\": 8,\n  \"ingredients\": [\n    \"salt\",\n    \"water\"\n  ],\n  \"instructions\": \"Mix and cook.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "12c Setup: create breakfast recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Pancakes\",\n  \"category\": \"breakfast\",\n  \"description\": \"Test recipe\",\n  \"servings\": 3,\n  \"ingredients\": [\n    \"salt\",\n    \"water\"\n  ],\n  \"instructions\": \"Mix and cook.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "13 List recipes, no parameters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Has data array and meta\", () => { pm.expect(j.data).to.be.an(\"array\"); pm.expect(j.meta).to.have.all.keys(\"page\",\"limit\",\"total\",\"totalPages\",\"hasNextPage\",\"hasPrevPage\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "13b List page 1, limit 2 (saves ids)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const ids = (pm.response.json().data || []).map(r => String(r.id || r._id));",
+                  "pm.environment.set('page1Ids', JSON.stringify(ids));",
+                  "pm.test(\"Returns at most 2\", () => pm.expect(ids.length).to.be.at.most(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?page=1&limit=2",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "14 List page 2, limit 2 (no overlap)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const ids = (pm.response.json().data || []).map(r => String(r.id || r._id));",
+                  "const page1 = JSON.parse(pm.environment.get('page1Ids') || '[]');",
+                  "pm.test(\"Page 2 is non-empty (needs 3+ records)\", () => pm.expect(ids.length).to.be.above(0));",
+                  "pm.test(\"No overlap with page 1\", () => pm.expect(ids.filter(i => page1.includes(i))).to.have.lengthOf(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?page=2&limit=2",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "15 List with limit=9999 is capped",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"meta.limit capped at 100\", () => pm.expect(j.meta.limit).to.be.at.most(100));",
+                  "pm.test(\"At most 100 records\", () => pm.expect(j.data.length).to.be.at.most(100));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?limit=9999",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "9999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "16 List sorted descending by servings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const v = pm.response.json().data.map(r => r.servings);",
+                  "pm.test(\"Descending order\", () => pm.expect(v.every((x, i) => i === 0 || v[i-1] >= x)).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?sort=-servings",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-servings"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "17 List sorted on disallowed field (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?sort=ownerId",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "ownerId"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "18 List filtered by category=dessert",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Only dessert recipes\", () => { pm.expect(d.length).to.be.above(0); pm.expect(d.every(r => r.category === \"dessert\")).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?category=dessert",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "dessert"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "18b List filtered by invalid category (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?category=banana",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "banana"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "19 List search q=pasta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Only matching records\", () => { pm.expect(d.length).to.be.above(0); pm.expect(d.every(r => /pasta/i.test(r.title + \" \" + r.description))).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?q=pasta",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pasta"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "19b List search with regex characters q=c++ (no 500)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}?q=c%2B%2B",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "c%2B%2B"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20a Read one recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}/{{recipeId}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "path": [
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20b Update one recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Servings updated\", () => pm.expect(pm.response.json().data.servings).to.eql(6));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"servings\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}/{{recipeId}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "path": [
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20c Delete one recipe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}/{{recipeId}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "path": [
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20d Read deleted recipe (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}/{{recipeId}}",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "path": [
+                "{{recipeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "20e Read with malformed id (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{recipePath}}/not-an-id",
+              "host": [
+                "{{baseUrl}}{{recipePath}}"
+              ],
+              "path": [
+                "not-an-id"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Meal Plans",
+      "item": [
+        {
+          "name": "MP01 Create meal plan with token (status forced to draft)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const base = Date.UTC(2100, 0, 1);",
+                  "const rnd = () => new Date(base + Math.floor(Math.random() * 36500) * 86400000).toISOString().slice(0, 10);",
+                  "['weekA','weekB','weekC','weekD'].forEach(k => pm.environment.set(k, rnd()));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"ownerId is my id\", () => pm.expect(String(d.ownerId)).to.eql(pm.environment.get(\"userId\")));",
+                  "pm.test(\"Client-sent status ignored, starts as draft\", () => pm.expect(d.status).to.eql(\"draft\"));",
+                  "pm.environment.set('planId', d.id || d._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cutting Week\",\n  \"weekStartDate\": \"{{weekA}}\",\n  \"meals\": [\n    {\n      \"day\": \"monday\",\n      \"mealType\": \"dinner\"\n    },\n    {\n      \"day\": \"tuesday\",\n      \"mealType\": \"lunch\"\n    }\n  ],\n  \"status\": \"finalized\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP02 Create meal plan with fake ownerId (ignored)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Fake ownerId ignored\", () => { pm.expect(String(d.ownerId)).to.eql(pm.environment.get(\"userId\")); pm.expect(String(d.ownerId)).to.not.eql(pm.environment.get(\"fakeOwnerId\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Bulk Plan\",\n  \"weekStartDate\": \"{{weekB}}\",\n  \"meals\": [\n    {\n      \"day\": \"tuesday\",\n      \"mealType\": \"breakfast\"\n    }\n  ],\n  \"ownerId\": \"{{fakeOwnerId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP03 Setup: create third meal plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Maintenance Plan\",\n  \"weekStartDate\": \"{{weekC}}\",\n  \"meals\": [\n    {\n      \"day\": \"friday\",\n      \"mealType\": \"snack\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP04 Create meal plan for a week that already has one (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Duplicate Week\",\n  \"weekStartDate\": \"{{weekA}}\",\n  \"meals\": [\n    {\n      \"day\": \"monday\",\n      \"mealType\": \"dinner\"\n    },\n    {\n      \"day\": \"tuesday\",\n      \"mealType\": \"lunch\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP05 Create meal plan with duplicate day + mealType (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Double Dinner\",\n  \"weekStartDate\": \"{{weekD}}\",\n  \"meals\": [\n    {\n      \"day\": \"monday\",\n      \"mealType\": \"dinner\"\n    },\n    {\n      \"day\": \"monday\",\n      \"mealType\": \"dinner\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP06 Create meal plan with title missing (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekStartDate\": \"{{weekD}}\",\n  \"meals\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP07 Create meal plan with invalid day (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Bad Day\",\n  \"weekStartDate\": \"{{weekD}}\",\n  \"meals\": [\n    {\n      \"day\": \"funday\",\n      \"mealType\": \"dinner\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP08 Create meal plan with no token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"No Token Plan\",\n  \"weekStartDate\": \"{{weekD}}\",\n  \"meals\": [\n    {\n      \"day\": \"monday\",\n      \"mealType\": \"dinner\"\n    },\n    {\n      \"day\": \"tuesday\",\n      \"mealType\": \"lunch\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP09 List meal plans, no parameters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Has data array and meta\", () => { pm.expect(j.data).to.be.an(\"array\"); pm.expect(j.meta).to.have.all.keys(\"page\",\"limit\",\"total\",\"totalPages\",\"hasNextPage\",\"hasPrevPage\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP10 List meal plans page 1, limit 2 (saves ids)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const ids = (pm.response.json().data || []).map(r => String(r.id || r._id));",
+                  "pm.environment.set('page1PlanIds', JSON.stringify(ids));",
+                  "pm.test(\"Returns at most 2\", () => pm.expect(ids.length).to.be.at.most(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?page=1&limit=2",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP11 List meal plans page 2, limit 2 (no overlap)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const ids = (pm.response.json().data || []).map(r => String(r.id || r._id));",
+                  "const page1 = JSON.parse(pm.environment.get('page1PlanIds') || '[]');",
+                  "pm.test(\"Page 2 is non-empty (needs 3+ plans)\", () => pm.expect(ids.length).to.be.above(0));",
+                  "pm.test(\"No overlap with page 1\", () => pm.expect(ids.filter(i => page1.includes(i))).to.have.lengthOf(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?page=2&limit=2",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP12 List meal plans with limit=9999 is capped",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"meta.limit capped at 100\", () => pm.expect(j.meta.limit).to.be.at.most(100));",
+                  "pm.test(\"At most 100 records\", () => pm.expect(j.data.length).to.be.at.most(100));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?limit=9999",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "9999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP13 List meal plans sorted descending by weekStartDate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const v = pm.response.json().data.map(r => new Date(r.weekStartDate).getTime());",
+                  "pm.test(\"Descending order\", () => pm.expect(v.every((x, i) => i === 0 || v[i-1] >= x)).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?sort=-weekStartDate",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "-weekStartDate"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP14 List meal plans sorted on disallowed field (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?sort=ownerId",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "ownerId"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP15 List meal plans filtered by status=draft",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Only draft plans\", () => { pm.expect(d.length).to.be.above(0); pm.expect(d.every(r => r.status === \"draft\")).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?status=draft",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "draft"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP16 List meal plans filtered by invalid status (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?status=banana",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "banana"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP17 List meal plans filtered by day + mealType (same meal)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Every plan has a Monday dinner\", () => { pm.expect(d.length).to.be.above(0); pm.expect(d.every(p => p.meals.some(m => m.day === \"monday\" && m.mealType === \"dinner\"))).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?day=monday&mealType=dinner",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "day",
+                  "value": "monday"
+                },
+                {
+                  "key": "mealType",
+                  "value": "dinner"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP18 List meal plans filtered by invalid day (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?day=funday",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "day",
+                  "value": "funday"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP19 List meal plans search q=cutting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"Only matching titles\", () => { pm.expect(d.length).to.be.above(0); pm.expect(d.every(p => /cutting/i.test(p.title))).to.be.true; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?q=cutting",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "cutting"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP20 List meal plans search with regex characters q=c++ (no 500)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}?q=c%2B%2B",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "c%2B%2B"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP21 Read one meal plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP22 Update meal plan title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Title updated\", () => pm.expect(pm.response.json().data.title).to.eql(\"Cutting Week Updated\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cutting Week Updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP23 Finalize meal plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Is finalized\", () => pm.expect(pm.response.json().data.status).to.eql(\"finalized\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"finalized\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP24 Update finalized meal plan (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Should Not Change\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP25 Delete meal plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP26 Read deleted meal plan (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/{{planId}}",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "{{planId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MP27 Read meal plan with malformed id (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{mealPlanPath}}/not-an-id",
+              "host": [
+                "{{baseUrl}}{{mealPlanPath}}"
+              ],
+              "path": [
+                "not-an-id"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  }
+}
